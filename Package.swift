@@ -13,24 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
 import PackageDescription
-
-let manifestDirectoryURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-let manifestPath = manifestDirectoryURL.standardizedFileURL.path
-let isDependencyCheckout = manifestPath.contains("/.build/checkouts/")
-    || manifestPath.contains("/SourcePackages/checkouts/")
-
-func localOrForkDependency(_ repository: String, localPath: String) -> Package.Dependency {
-    let resolvedLocalPath = URL(fileURLWithPath: localPath, relativeTo: manifestDirectoryURL)
-        .standardizedFileURL
-        .path
-    if !isDependencyCheckout && FileManager.default.fileExists(atPath: resolvedLocalPath) {
-        return .package(path: resolvedLocalPath)
-    }
-
-    return .package(url: "https://github.com/1amageek/\(repository).git", branch: "main")
-}
 
 let strictConcurrencyDevelopment = false
 
@@ -340,19 +323,19 @@ let package = Package(
         .library(name: "NIOCertificateHelpers", targets: ["NIOCertificateHelpers"]),
     ],
     dependencies: [
-        localOrForkDependency("swift-nio", localPath: "../swift-nio"),
-        localOrForkDependency("swift-nio-http2", localPath: "../swift-nio-http2"),
-        localOrForkDependency("swift-http-types", localPath: "../swift-http-types"),
-        localOrForkDependency("swift-http-structured-headers", localPath: "../swift-http-structured-headers"),
-        localOrForkDependency("swift-atomics", localPath: "../swift-atomics"),
-        localOrForkDependency("swift-algorithms", localPath: "../swift-algorithms"),
-        localOrForkDependency("swift-certificates", localPath: "../swift-certificates"),
-        localOrForkDependency("swift-nio-ssl", localPath: "../swift-nio-ssl"),
-        localOrForkDependency("swift-asn1", localPath: "../swift-asn1"),
-        localOrForkDependency("swift-service-lifecycle", localPath: "../swift-service-lifecycle"),
-        localOrForkDependency("swift-async-algorithms", localPath: "../swift-async-algorithms"),
-        localOrForkDependency("swift-log", localPath: "../swift-log"),
-        localOrForkDependency("swift-crypto", localPath: "../swift-crypto"),
+        .package(url: "https://github.com/1amageek/swift-nio.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-nio-http2.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-http-types.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-http-structured-headers.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-atomics.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-algorithms.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-certificates.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-nio-ssl.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-asn1.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-service-lifecycle.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-async-algorithms.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-log.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-crypto.git", branch: "main"),
     ],
     targets: targets
 )
