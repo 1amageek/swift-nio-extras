@@ -13,7 +13,21 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Foundation
 import PackageDescription
+
+let manifestDirectoryURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+
+func localOrForkDependency(_ repository: String, localPath: String) -> Package.Dependency {
+    let resolvedLocalPath = URL(fileURLWithPath: localPath, relativeTo: manifestDirectoryURL)
+        .standardizedFileURL
+        .path
+    if FileManager.default.fileExists(atPath: resolvedLocalPath) {
+        return .package(path: resolvedLocalPath)
+    }
+
+    return .package(url: "https://github.com/1amageek/\(repository).git", branch: "main")
+}
 
 let strictConcurrencyDevelopment = false
 
@@ -323,20 +337,19 @@ let package = Package(
         .library(name: "NIOCertificateHelpers", targets: ["NIOCertificateHelpers"]),
     ],
     dependencies: [
-        .package(path: "../swift-nio"),
-        .package(path: "../swift-nio-http2"),
-        .package(path: "../swift-http-types"),
-        .package(path: "../swift-http-structured-headers"),
-        .package(path: "../swift-atomics"),
-        .package(path: "../swift-algorithms"),
-        .package(path: "../swift-certificates"),
-        .package(path: "../swift-nio-ssl"),
-        .package(path: "../swift-asn1"),
-        .package(path: "../swift-service-lifecycle"),
-        .package(path: "../swift-async-algorithms"),
-        .package(path: "../swift-log"),
-        .package(path: "../swift-crypto"),
-
+        localOrForkDependency("swift-nio", localPath: "../swift-nio"),
+        localOrForkDependency("swift-nio-http2", localPath: "../swift-nio-http2"),
+        localOrForkDependency("swift-http-types", localPath: "../swift-http-types"),
+        localOrForkDependency("swift-http-structured-headers", localPath: "../swift-http-structured-headers"),
+        localOrForkDependency("swift-atomics", localPath: "../swift-atomics"),
+        localOrForkDependency("swift-algorithms", localPath: "../swift-algorithms"),
+        localOrForkDependency("swift-certificates", localPath: "../swift-certificates"),
+        localOrForkDependency("swift-nio-ssl", localPath: "../swift-nio-ssl"),
+        localOrForkDependency("swift-asn1", localPath: "../swift-asn1"),
+        localOrForkDependency("swift-service-lifecycle", localPath: "../swift-service-lifecycle"),
+        localOrForkDependency("swift-async-algorithms", localPath: "../swift-async-algorithms"),
+        localOrForkDependency("swift-log", localPath: "../swift-log"),
+        localOrForkDependency("swift-crypto", localPath: "../swift-crypto"),
     ],
     targets: targets
 )
