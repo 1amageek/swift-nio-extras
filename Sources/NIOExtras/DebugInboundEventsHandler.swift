@@ -19,6 +19,8 @@ import Darwin
 @preconcurrency import Musl
 #elseif canImport(Android)
 @preconcurrency import Android
+#elseif canImport(WASILibc)
+@preconcurrency import WASILibc
 #else
 @preconcurrency import Glibc
 #endif

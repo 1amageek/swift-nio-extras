@@ -13,7 +13,9 @@
 //===----------------------------------------------------------------------===//
 
 import CNIOLinux
+#if canImport(Dispatch)
 import Dispatch
+#endif
 import NIOCore
 
 #if canImport(Darwin)
@@ -22,11 +24,15 @@ import Darwin
 import Musl
 #elseif canImport(Android)
 import Android
+#elseif canImport(WASILibc)
+import WASILibc
 #else
 import Glibc
 #endif
 
+#if !os(WASI)
 let sysWrite = write
+#endif
 
 struct TCPHeader {
     struct Flags: OptionSet {
@@ -663,6 +669,37 @@ extension ByteBuffer {
 }
 
 extension NIOWritePCAPHandler {
+    #if os(WASI)
+    public final class SynchronizedFileSink {
+        public enum FileWritingMode: Sendable {
+            case appendToExistingPCAPFile
+            case createNewPCAPFile
+        }
+
+        public struct Error: Swift.Error {
+            public var errorCode: Int
+
+            internal enum ErrorCode: Int {
+                case unavailableOnWASI = 1
+            }
+        }
+
+        public static func fileSinkWritingToFile(
+            path: String,
+            fileWritingMode: FileWritingMode = .createNewPCAPFile,
+            errorHandler: @escaping (Swift.Error) -> Void
+        ) throws -> SynchronizedFileSink {
+            throw SynchronizedFileSink.Error(errorCode: Error.ErrorCode.unavailableOnWASI.rawValue)
+        }
+
+        public func syncClose() throws {}
+
+        @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+        public func close() async throws {}
+
+        public func write(buffer: ByteBuffer) {}
+    }
+    #else
     /// A synchronised file sink that uses a `DispatchQueue` to do all the necessary write synchronously.
     ///
     /// A `SynchronizedFileSink` is thread-safe so can be used from any thread/`EventLoop`. After use, you
@@ -810,6 +847,7 @@ extension NIOWritePCAPHandler {
             }
         }
     }
+    #endif
 }
 
 extension NIOWritePCAPHandler.SynchronizedFileSink: @unchecked Sendable {}
